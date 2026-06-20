@@ -12,10 +12,18 @@ class Llm:
         messages.append({"role": "user", "content": user_msg})
         return messages
 
-    def ask(self, user_msg, sys_msg=None):
+    def ask(self, user_msg, sys_msg=None, schema=None):
         messages = self.construct_message(user_msg, sys_msg)
-        completion = self.client.chat.completions.create(
-            model="gpt-5.1",
-            messages=messages
-        )
-        return completion.choices[0].message.content
+        if schema:
+            completion = self.client.chat.completions.parse(
+                model="gpt-5.1",
+                messages=messages,
+                response_format=schema
+            )
+            return completion.choices[0].message.parsed
+        else:
+            completion = self.client.chat.completions.create(
+                model="gpt-5.1",
+                messages=messages
+            )
+            return completion.choices[0].message.content
