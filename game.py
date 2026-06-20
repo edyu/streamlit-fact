@@ -11,6 +11,10 @@ class Game:
         self.curr_answer = None
         self.curr_eval = None
 
+        self.score = 0
+        self.num_questions_completed = 0
+        self.max_questions = 1
+
     def ask_llm_for_question(self):
         user_msg, sys_msg = QUESTION_PROMPT['user'], QUESTION_PROMPT['system']
         return self.llm.ask(user_msg, sys_msg)
@@ -36,4 +40,10 @@ class Game:
 
     def evaluate_answer(self):
         self.curr_eval = self.ask_llm_to_evaluate_answer()
+        self.num_questions_completed += 1
+        if self.curr_eval.is_correct:
+            self.score += 1
         self.status = 'STATE_RESULT'
+
+    def is_over(self):
+        return self.num_questions_completed >= self.max_questions
