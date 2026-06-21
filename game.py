@@ -1,3 +1,5 @@
+import time
+
 from llm import Llm
 from prompts import QUESTION_PROMPT, ANSWER_PROMPT
 from answer_evaluation import AnswerEvaluation
@@ -13,11 +15,18 @@ class Game:
 
         self.score = 0
         self.num_questions_completed = 0
-        self.max_questions = 1
+        self.max_questions = 5
+        self.questions = []
 
     def ask_llm_for_question(self):
-        user_msg, sys_msg = QUESTION_PROMPT['user'], QUESTION_PROMPT['system']
-        return self.llm.ask(user_msg, sys_msg)
+        seed = int(time.time())
+        sys_msg = QUESTION_PROMPT['system']
+        user_msg = (
+            QUESTION_PROMPT['user']
+            .replace('{already_asked}', '\n'.join(self.questions))
+            .replace('{seed}', str(seed))
+        )
+        return self.llm.ask(user_msg, sys_msg, temperature=0.7, top_p=0.9)
 
     def ask_llm_to_evaluate_answer(self):
         sys_msg = ANSWER_PROMPT['system']
@@ -31,8 +40,12 @@ class Game:
 
     def obtain_question(self):
         self.curr_question = self.ask_llm_for_question()
+        self.questions.append(self.curr_question)
         self.status = 'ASK_QUESTION'
         return self.curr_question
+
+    def proceed_to_next_question(self):
+        self.status = 'GET_QUESTION'
 
     def accept_answer(self, answer):
         self.curr_answer = answer

@@ -1,6 +1,17 @@
 QUESTION_PROMPT = {
-    'system': 'You are a quizmaster.',
-    'user': 'Ask a trivia question. Do not provide choices or the answer.'
+    'system': 'You are a quizmaster who never asks the same question twice.',
+    'user': '''
+        First think of a unique category for a trivia question.
+        Then think of a topic within that category.
+
+        Finally, ask a unique trivia question, generated using the random seed {seed},
+        without revealing the category or topic.
+
+        Do not provide choices, or reveal the answer.
+
+        The following question have already been asked:
+        {already_asked}
+    '''
 }
 
 ANSWER_PROMPT = {

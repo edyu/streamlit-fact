@@ -21,7 +21,12 @@ with side_col:
 
 with main_col:
     if game:
-        st.header("Question", divider='gray')
+        st.header(
+              f"Question {len(game.questions)} / {game.max_questions}",
+              divider='gray'
+        )
+        st.subheader(f"Score: {game.score}")
+
         if game.status == 'GET_QUESTION':
             with st.spinner('Obtaining question...') as status:
                 question = game.obtain_question()
@@ -49,3 +54,9 @@ with main_col:
             if game.is_over():
                 with st.container(border=True):
                     st.markdown(f"Game over! Your final score is: **{game.score}**")
+            else:
+                st.button(
+                    "Next question",
+                    type='primary',
+                    on_click=lambda: game.proceed_to_next_question()
+                )
