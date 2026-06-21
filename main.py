@@ -1,8 +1,9 @@
 import streamlit as st
 from game import Game
+from settings import default_settings, settings_editor
 
 def start_new_game():
-    st.session_state.game = Game(st.secrets['llm_api_key'])
+    st.session_state.game = Game(st.secrets['llm_api_key'], default_settings)
     st.rerun()
 
 def new_game_button(game):
@@ -17,10 +18,12 @@ game = st.session_state.game if 'game' in st.session_state else None
 side_col, main_col = st.columns([2, 3])
 with side_col:
     st.header("⚡ Fact Frenzy", divider='gray')
+    settings = settings_editor()
     new_game_button(game)
 
 with main_col:
     if game:
+        game.modify_settings(settings)
         st.header(
               f"Question {len(game.questions)} / {game.max_questions}",
               divider='gray'

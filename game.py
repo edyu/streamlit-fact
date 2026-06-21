@@ -5,8 +5,9 @@ from prompts import QUESTION_PROMPT, ANSWER_PROMPT
 from answer_evaluation import AnswerEvaluation
 
 class Game:
-    def __init__(self, llm_api_key):
+    def __init__(self, llm_api_key, settings):
         self.llm = Llm(llm_api_key)
+        self.settings = settings
         self.status = 'GET_QUESTION'
 
         self.curr_question = None
@@ -18,13 +19,23 @@ class Game:
         self.max_questions = 5
         self.questions = []
 
+    def get_setting(self, setting_name):
+        return self.settings[setting_name][0]
+
+    def modify_settings(self, new_settings):
+        self.settings = new_settings
+
     def ask_llm_for_question(self):
         seed = int(time.time())
-        sys_msg = QUESTION_PROMPT['system']
+        sys_msg = (
+            QUESTION_PROMPT['system']
+            .replace('{quizmaster}', self.get_setting('Quizmaster'))
+        )
         user_msg = (
             QUESTION_PROMPT['user']
             .replace('{already_asked}', '\n'.join(self.questions))
             .replace('{seed}', str(seed))
+            .replace('{difficulty}', self.get_setting('Difficulty'))
         )
         return self.llm.ask(user_msg, sys_msg, temperature=0.7, top_p=0.9)
 
